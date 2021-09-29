@@ -96,8 +96,8 @@ const PlantIdField = ({ auction }: { auction: Auction }) => {
   if (plantQuery.status === PlantResolvingStatus.Loading)
     return <Table.Cell>Cargando: {cleanInt(auction.id)}</Table.Cell>
 
-  let { baseLE, element, hour, le, type } = infoPlantId((plantQuery.value || 1000).toString())
-  return <Table.Cell>{cleanInt(auction.id)}, {plantQuery.value}, {element}, {le}LE per hour</Table.Cell>
+  let { baseLE, element, hour, le, type, rarityType } = infoPlantId((plantQuery.value || 1000).toString())
+  return <Table.Cell>{cleanInt(auction.id)}, {plantQuery.value}, {element}, {roundAccurately(le, 3)}LE per hour, {rarityType}</Table.Cell>
 
 }
 
