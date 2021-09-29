@@ -5,6 +5,7 @@ import pvuABI from "./pvu.json";
 import { Button, Input, Table } from "semantic-ui-react";
 import Eth from "web3-eth";
 import { formatDistanceToNow, differenceInSeconds } from "date-fns";
+import { STATUS } from "./types.ts";
 
 const useToggle = (initialState = false) => {
   const [state, setState] = useState(initialState);
@@ -62,13 +63,6 @@ const dataExample = {
   transactionHash:
     "0xea0647922495966ecad723104f888c553b0407bedfce20fb757e3459208058ad",
   transactionIndex: "0x6a"
-};
-
-const STATUS = {
-  OFFER: 0,
-  CANCELLED: 1,
-  BOUGHT: 2,
-  OTHER: 3
 };
 
 const statusMap = {
