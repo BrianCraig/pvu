@@ -24,6 +24,7 @@ export const PlantIdContext = React.createContext<PlantIdContextInterface>({
 export const PlantIdContextProvider: React.FunctionComponent = ({ children }) => {
   const [plantsMap, setPlantsMap] = useState<{ [key: string]: PlantIdStatus }>({});
   const resolveId = useCallback((id: string) => {
+    setPlantsMap((ori) => ({ ...ori, [id]: { status: PlantResolvingStatus.Loading } }))
     tokenContract.methods.getPlant(`0x${id}`).call({}).then(
       ({ plantId }: { plantId: string }) =>
         setPlantsMap((ori) => ({ ...ori, [id]: { status: PlantResolvingStatus.Loaded, value: parseInt(plantId) } }))

@@ -6,6 +6,7 @@ import { formatDistanceToNow, differenceInSeconds } from "date-fns";
 import { Auction, AuctionMap, HexaString, STATUS, TxLog, ZeroXHexaString } from "./types";
 import { tradeContract } from "./eth/trade-contract";
 import { PlantIdContext, PlantResolvingStatus } from "./context/PlantIdContext";
+import { infoPlantId } from "./plants/plant-id-tools";
 
 const useToggle = (initialState = false): [boolean, () => void] => {
   const [state, setState] = useState(initialState);
@@ -89,13 +90,15 @@ const BuyButton = ({ tx, address }: { tx: Auction, address: ZeroXHexaString }) =
 const PlantIdField = ({ auction }: { auction: Auction }) => {
   const { plantsMap, resolveId } = useContext(PlantIdContext);
   let plantQuery = plantsMap[auction.id]
-  if (plantQuery !== undefined) {
-    if (plantQuery.status === PlantResolvingStatus.Loading) {
-      return <Table.Cell>Cargando: {cleanInt(auction.id)}</Table.Cell>
-    }
-    return <Table.Cell>{cleanInt(auction.id)} ({plantQuery.value})</Table.Cell>
-  }
-  return <Table.Cell onClick={() => resolveId(auction.id)}>{cleanInt(auction.id)}</Table.Cell>
+  //infoPlantId
+  if (plantQuery === undefined)
+    return <Table.Cell onClick={() => resolveId(auction.id)}>{cleanInt(auction.id)}</Table.Cell>
+  if (plantQuery.status === PlantResolvingStatus.Loading)
+    return <Table.Cell>Cargando: {cleanInt(auction.id)}</Table.Cell>
+
+  let { baseLE, element, hour, le, type } = infoPlantId((plantQuery.value || 1000).toString())
+  return <Table.Cell>{cleanInt(auction.id)}, {plantQuery.value}, {element}, {le}LE per hour</Table.Cell>
+
 }
 
 const DataTable = ({ data, address }: { data: Auction[], address: ZeroXHexaString }) => (
