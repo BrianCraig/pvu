@@ -1,10 +1,11 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useContext } from "react";
 import "./styles.css";
 import { eth } from "./eth/eth-instance"
 import { Button, Input, Table } from "semantic-ui-react";
 import { formatDistanceToNow, differenceInSeconds } from "date-fns";
 import { Auction, AuctionMap, HexaString, STATUS, TxLog, ZeroXHexaString } from "./types";
 import { tradeContract } from "./eth/trade-contract";
+import { PlantIdContext, PlantResolvingStatus } from "./context/PlantIdContext";
 
 const useToggle = (initialState = false): [boolean, () => void] => {
   const [state, setState] = useState(initialState);
@@ -85,6 +86,18 @@ const BuyButton = ({ tx, address }: { tx: Auction, address: ZeroXHexaString }) =
   );
 };
 
+const PlantIdField = ({ auction }: { auction: Auction }) => {
+  const { plantsMap, resolveId } = useContext(PlantIdContext);
+  let plantQuery = plantsMap[auction.id]
+  if (plantQuery !== undefined) {
+    if (plantQuery.status === PlantResolvingStatus.Loading) {
+      return <Table.Cell>Cargando: {cleanInt(auction.id)}</Table.Cell>
+    }
+    return <Table.Cell>{cleanInt(auction.id)} ({plantQuery.value})</Table.Cell>
+  }
+  return <Table.Cell onClick={() => resolveId(auction.id)}>{cleanInt(auction.id)}</Table.Cell>
+}
+
 const DataTable = ({ data, address }: { data: Auction[], address: ZeroXHexaString }) => (
   <Table>
     <Table.Header>
@@ -100,7 +113,7 @@ const DataTable = ({ data, address }: { data: Auction[], address: ZeroXHexaStrin
       {data.map((tx) => (
         <Table.Row key={tx.id}>
           <Table.Cell>{stringPrice(tx.price)}</Table.Cell>
-          <Table.Cell>{cleanInt(tx.id)}</Table.Cell>
+          <PlantIdField auction={tx} />
           <Table.Cell>{statusMap[tx.status]}</Table.Cell>
           <Table.Cell>
             {formatDistanceToNow(new Date(tx.timestamp * 1000), {
