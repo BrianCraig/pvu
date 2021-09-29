@@ -1,16 +1,14 @@
 import { useState, useEffect, useCallback } from "react";
 import "./styles.css";
-import ABI from "./abi";
-import pvuABI from "./pvu.json";
+import { eth } from "./eth/eth-instance"
 import { Button, Input, Table } from "semantic-ui-react";
-import Eth, { Eth as EthInterface } from "web3-eth";
 import { formatDistanceToNow, differenceInSeconds } from "date-fns";
 import { Auction, AuctionMap, HexaString, STATUS, TxLog, ZeroXHexaString } from "./types";
+import { tradeContract } from "./eth/trade-contract";
 
 const useToggle = (initialState = false): [boolean, () => void] => {
   const [state, setState] = useState(initialState);
   const toggle = useCallback(() => setState((state) => !state), []);
-
   return [state, toggle];
 };
 
@@ -20,20 +18,7 @@ styleLink.href =
   "https://cdn.jsdelivr.net/npm/semantic-ui/dist/semantic.min.css";
 document.head.appendChild(styleLink);
 
-// @ts-ignore
-var eth: EthInterface = new Eth(Eth.givenProvider || "ws://some.local-or-remote.node:8546");
-
-const contractOn = "0x926eae99527a9503eadb4c9e927f21f84f20c977";
-
-const pvuContractOn = "0x31471e0791fcdbe82fbf4c44943255e923f1b794";
-
-// @ts-ignore
-let contract = new eth.Contract(ABI, contractOn);
-
 let myAddress: ZeroXHexaString;
-
-// @ts-ignore
-let pvuContract = new eth.Contract(pvuABI, pvuContractOn);
 
 const start = async (): Promise<string> => {
   // @ts-ignore
@@ -45,8 +30,7 @@ const start = async (): Promise<string> => {
   }
   const currentBlock = await eth.getBlockNumber();
   myAddress =
-    (await eth.getAccounts())[0] ||
-    "0xD077F2C29F6f00108Ed30025dbD71b0284B914aa";
+    (await eth.getAccounts())[0];
   return currentBlock.toString();
 }
 function sleep(time: number) {
@@ -90,7 +74,7 @@ const getTopic = (tx: TxLog) => {
 
 const BuyButton = ({ tx, address }: { tx: Auction, address: ZeroXHexaString }) => {
   let oc = () => {
-    contract.methods
+    tradeContract.methods
       .bid(`0x${tx.id}`, `0x${tx.price}`)
       .send({ from: address, gasPrice: 6e9, gas: 300000 });
   };
@@ -100,13 +84,6 @@ const BuyButton = ({ tx, address }: { tx: Auction, address: ZeroXHexaString }) =
     </Button>
   );
 };
-
-/* const openLink = () => {
-  contract.methods.p.call().then(
-    console.log
-  )
-  window.open(`https://marketplace.plantvsundead.com/offering/bundle#/plant/${}`, '_blank').focus();}
-  */
 
 const DataTable = ({ data, address }: { data: Auction[], address: ZeroXHexaString }) => (
   <Table>
@@ -269,7 +246,7 @@ export const Data = ({ block }: { block: string }) => {
           return;
         }
         boughtList = [...boughtList, tx.id];
-        contract.methods
+        tradeContract.methods
           .bid(`0x${tx.id}`, `0x${tx.price}`)
           .send({ from: address, gasPrice: 6e9, gas: 300000 });
         console.log(
