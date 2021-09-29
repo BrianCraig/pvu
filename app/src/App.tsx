@@ -168,7 +168,9 @@ export const Data = ({ block }: { block: string }) => {
   const [minutes, setMinutes] = useState("1");
   const [filterOpen, filterToggle] = useToggle(false);
   const [every, setEvery] = useState("1");
-  const [autobuy, setAutobuy] = useState("0.0");
+  const [autobuy, setAutobuy] = useState("");
+  const [autobuyMin, setAutobuyMin] = useState("");
+  const [useAutobuy, setUseAutobuy] = useToggle(false);
   let [boughtList, setBoughtList] = useState<HexaString[]>([]);
 
   useEffect(() => {
@@ -236,23 +238,28 @@ export const Data = ({ block }: { block: string }) => {
           (parseInt(hexaDigest(datito[0].blockNumber, 0), 16) - 5).toString()
         );
       }
-      let autobuyInt = parseFloat(autobuy) * 1e18;
-      Object.values(data).forEach((tx) => {
-        if (
-          cleanInt(tx.price) > autobuyInt ||
-          tx.status !== STATUS.OFFER ||
-          boughtList.includes(tx.id)
-        ) {
-          return;
-        }
-        boughtList = [...boughtList, tx.id];
-        tradeContract.methods
-          .bid(`0x${tx.id}`, `0x${tx.price}`)
-          .send({ from: address, gasPrice: 6e9, gas: 300000 });
-        console.log(
-          `Comprando planta ${cleanInt(tx.id)} a ${cleanInt(tx.price) * 1e-18}`
-        );
-      });
+      if (useAutobuy) {
+        let autobuyMaxInt = parseFloat(autobuy) * 1e18;
+        let autobuyMinInt = parseFloat(autobuyMin) * 1e18;
+        Object.values(data).forEach((tx) => {
+          if (
+            cleanInt(tx.price) > autobuyMaxInt ||
+            cleanInt(tx.price) < autobuyMinInt ||
+            tx.status !== STATUS.OFFER ||
+            boughtList.includes(tx.id)
+          ) {
+            return;
+          }
+          boughtList = [...boughtList, tx.id];
+          tradeContract.methods
+            .bid(`0x${tx.id}`, `0x${tx.price}`)
+            .send({ from: address, gasPrice: 6e9, gas: 300000 });
+          console.log(
+            `Comprando planta ${cleanInt(tx.id)} a ${cleanInt(tx.price) * 1e-18
+            }`
+          );
+        });
+      }
 
       setBoughtList(boughtList);
       setData({ ...data });
@@ -310,10 +317,18 @@ export const Data = ({ block }: { block: string }) => {
       />
       <span> Autobuy: </span>
       <Input
+        onChange={(event) => setAutobuyMin(event.target.value || "0.0")}
+        value={autobuyMin}
+        placeholder="AutoBuy Min"
+      />
+      <Input
         onChange={(event) => setAutobuy(event.target.value || "0.0")}
         value={autobuy}
-        placeholder="AutoBuy"
+        placeholder="AutoBuy Max"
       />
+      <Button primary={useAutobuy} onClick={setUseAutobuy}>
+        Autobuy Activo
+      </Button>
       <DataTable data={tablaData} address={address} />
     </div>
   );

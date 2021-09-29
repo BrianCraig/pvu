@@ -11,7 +11,7 @@ export enum STATUS {
 export type HexaString = string;
 
 /**
- * Hexadecimal string ex: "0fax"
+ * Hexadecimal string ex: "0x0fax"
  */
 export type ZeroXHexaString = string;
 
