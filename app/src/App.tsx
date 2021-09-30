@@ -46,19 +46,6 @@ const statusMap = {
   3: "Otro?"
 };
 
-const auctionExample = {
-  id: "0af3",
-  tx: "fac1",
-  version: {
-    block: "0fa1",
-    index: "a10a"
-  },
-  price: "0f1a",
-  timestamp: 10000,
-  endTimestamp: 10001,
-  status: STATUS.BOUGHT
-};
-
 const topicMap: { [key: string]: STATUS } = {
   "0xa9c8dfcda5664a5a124c713e386da27de87432d5b668e79458501eb296389ba7":
     STATUS.OFFER,
@@ -119,9 +106,7 @@ const DataTable = ({ data, address }: { data: Auction[], address: ZeroXHexaStrin
           <PlantIdField auction={tx} />
           <Table.Cell>{statusMap[tx.status]}</Table.Cell>
           <Table.Cell>
-            {formatDistanceToNow(new Date(tx.timestamp * 1000), {
-              includeSeconds: true
-            })}
+            {differenceInSeconds(Date.now(), new Date(tx.timestamp * 1000))}s
           </Table.Cell>
           <Table.Cell>
             <BuyButton tx={tx} address={address} />
@@ -302,18 +287,21 @@ export const Data = ({ block }: { block: string }) => {
     <div>
       <span>Address: </span>
       <Input
+        className={"smallinput"}
         onChange={(event) => setAddress(event.target.value)}
         value={address}
         placeholder="Address"
       />
       <span> price: </span>
       <Input
+        className={"smallinput"}
         onChange={(event) => setLessThan(event.target.value)}
         value={lessThan}
         placeholder="Precio"
       />
       <span> minutes: </span>
       <Input
+        className={"smallinput"}
         onChange={(event) => setMinutes(event.target.value)}
         value={minutes}
         placeholder="Minutos"
@@ -325,19 +313,22 @@ export const Data = ({ block }: { block: string }) => {
         Abiertos
       </Button>
 
-      <span>refreshRate per second: </span>
+      <span>refreshRate every: </span>
       <Input
+        className={"smallinput"}
         onChange={(event) => setEvery(event.target.value)}
         value={every}
         placeholder="refresh rate"
       />
       <span> Autobuy: </span>
       <Input
+        className={"smallinput"}
         onChange={(event) => setAutobuyMin(event.target.value || "0.0")}
         value={autobuyMin}
         placeholder="AutoBuy Min"
       />
       <Input
+        className={"smallinput"}
         onChange={(event) => setAutobuy(event.target.value || "0.0")}
         value={autobuy}
         placeholder="AutoBuy Max"
