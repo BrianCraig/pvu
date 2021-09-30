@@ -75,8 +75,10 @@ const PlantIdField = ({ auction }: { auction: Auction }) => {
   const { plantsMap, resolveId } = useContext(PlantIdContext);
   let plantQuery = plantsMap[auction.id]
   //infoPlantId
-  if (plantQuery === undefined)
+  if (plantQuery === undefined) {
+    resolveId(auction.id)
     return <Table.Cell onClick={() => resolveId(auction.id)}>{cleanInt(auction.id)}</Table.Cell>
+  }
   if (plantQuery.status === PlantResolvingStatus.Loading)
     return <Table.Cell>Cargando: {cleanInt(auction.id)}</Table.Cell>
 
