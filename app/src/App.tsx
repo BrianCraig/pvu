@@ -7,12 +7,8 @@ import { Auction, AuctionMap, HexaString, STATUS, TxLog, ZeroXHexaString } from 
 import { tradeContract } from "./eth/trade-contract";
 import { PlantIdContext, PlantResolvingStatus } from "./context/PlantIdContext";
 import { infoPlantId } from "./plants/plant-id-tools";
-
-const useToggle = (initialState = false): [boolean, () => void] => {
-  const [state, setState] = useState(initialState);
-  const toggle = useCallback(() => setState((state) => !state), []);
-  return [state, toggle];
-};
+import { SettingsComponent } from "./components/Settings";
+import { SettingsContext } from "./context/SettingsContext";
 
 const styleLink = document.createElement("link");
 styleLink.rel = "stylesheet";
@@ -33,6 +29,7 @@ const start = async (): Promise<string> => {
   const currentBlock = await eth.getBlockNumber();
   myAddress =
     (await eth.getAccounts())[0];
+  eth.defaultAccount = myAddress;
   return currentBlock.toString();
 }
 function sleep(time: number) {
@@ -61,11 +58,11 @@ const getTopic = (tx: TxLog) => {
   return topic;
 };
 
-const BuyButton = ({ tx, address }: { tx: Auction, address: ZeroXHexaString }) => {
+const BuyButton = ({ tx }: { tx: Auction }) => {
   let oc = () => {
     tradeContract.methods
       .bid(`0x${tx.id}`, `0x${tx.price}`)
-      .send({ from: address, gasPrice: 6e9, gas: 300000 });
+      .send({ from: eth.defaultAccount, gasPrice: 6e9, gas: 300000 });
   };
   return (
     <Button onClick={oc} primary disabled={tx.status !== STATUS.OFFER}>
@@ -88,7 +85,7 @@ const PlantIdField = ({ auction }: { auction: Auction }) => {
 
 }
 
-const DataTable = ({ data, address }: { data: Auction[], address: ZeroXHexaString }) => (
+const DataTable = ({ data }: { data: Auction[] }) => (
   <Table>
     <Table.Header>
       <Table.Row>
@@ -109,7 +106,7 @@ const DataTable = ({ data, address }: { data: Auction[], address: ZeroXHexaStrin
             {differenceInSeconds(Date.now(), new Date(tx.timestamp * 1000))}s
           </Table.Cell>
           <Table.Cell>
-            <BuyButton tx={tx} address={address} />
+            <BuyButton tx={tx} />
           </Table.Cell>
         </Table.Row>
       ))}
@@ -164,14 +161,15 @@ export const Data = ({ block }: { block: string }) => {
   const [data, setData] = useState<AuctionMap>({});
   const [lastBlock, setLastBlock] = useState(block);
   const [redo, setRedo] = useState("");
-  const [address, setAddress] = useState(myAddress);
-  const [lessThan, setLessThan] = useState("40.01");
-  const [minutes, setMinutes] = useState("1");
-  const [filterOpen, filterToggle] = useToggle(false);
-  const [every, setEvery] = useState("1");
-  const [autobuy, setAutobuy] = useState("");
-  const [autobuyMin, setAutobuyMin] = useState("");
-  const [useAutobuy, setUseAutobuy] = useToggle(false);
+  const {
+    lessThan,
+    minutes,
+    filterOpen,
+    every,
+    autobuyMax,
+    autobuyMin,
+    useAutobuy
+  } = useContext(SettingsContext);
   let [boughtList, setBoughtList] = useState<HexaString[]>([]);
 
   useEffect(() => {
@@ -240,7 +238,7 @@ export const Data = ({ block }: { block: string }) => {
         );
       }
       if (useAutobuy) {
-        let autobuyMaxInt = parseFloat(autobuy) * 1e18;
+        let autobuyMaxInt = parseFloat(autobuyMax) * 1e18;
         let autobuyMinInt = parseFloat(autobuyMin) * 1e18;
         Object.values(data).forEach((tx) => {
           if (
@@ -254,7 +252,7 @@ export const Data = ({ block }: { block: string }) => {
           boughtList = [...boughtList, tx.id];
           tradeContract.methods
             .bid(`0x${tx.id}`, `0x${tx.price}`)
-            .send({ from: address, gasPrice: 6e9, gas: 300000 });
+            .send({ from: eth.defaultAccount, gasPrice: 6e9, gas: 300000 });
           console.log(
             `Comprando planta ${cleanInt(tx.id)} a ${cleanInt(tx.price) * 1e-18
             }`
@@ -267,7 +265,7 @@ export const Data = ({ block }: { block: string }) => {
     }
 
     prom();
-  }, [data, lastBlock, boughtList, autobuy, address]);
+  }, [data, lastBlock, boughtList, autobuyMax]);
 
   useEffect(() => {
     fetchit();
@@ -285,58 +283,8 @@ export const Data = ({ block }: { block: string }) => {
 
   return (
     <div>
-      <span>Address: </span>
-      <Input
-        className={"smallinput"}
-        onChange={(event) => setAddress(event.target.value)}
-        value={address}
-        placeholder="Address"
-      />
-      <span> price: </span>
-      <Input
-        className={"smallinput"}
-        onChange={(event) => setLessThan(event.target.value)}
-        value={lessThan}
-        placeholder="Precio"
-      />
-      <span> minutes: </span>
-      <Input
-        className={"smallinput"}
-        onChange={(event) => setMinutes(event.target.value)}
-        value={minutes}
-        placeholder="Minutos"
-      />
-      <span> </span>
-      <Button
-        primary={filterOpen}
-        onClick={filterToggle}>
-        Abiertos
-      </Button>
-
-      <span>refreshRate every: </span>
-      <Input
-        className={"smallinput"}
-        onChange={(event) => setEvery(event.target.value)}
-        value={every}
-        placeholder="refresh rate"
-      />
-      <span> Autobuy: </span>
-      <Input
-        className={"smallinput"}
-        onChange={(event) => setAutobuyMin(event.target.value || "0.0")}
-        value={autobuyMin}
-        placeholder="AutoBuy Min"
-      />
-      <Input
-        className={"smallinput"}
-        onChange={(event) => setAutobuy(event.target.value || "0.0")}
-        value={autobuy}
-        placeholder="AutoBuy Max"
-      />
-      <Button primary={useAutobuy} onClick={setUseAutobuy}>
-        Autobuy Activo
-      </Button>
-      <DataTable data={tablaData} address={address} />
+      <SettingsComponent />
+      <DataTable data={tablaData} />
     </div>
   );
 };
