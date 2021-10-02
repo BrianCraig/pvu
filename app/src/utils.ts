@@ -48,7 +48,7 @@ export const boughtDig = (tx: TxLog) => ({
 });
 
 export const roundAccurately = (number: number, decimalPlaces: number) =>
-  Math.round(number * (decimalPlaces * 10)) / (decimalPlaces * 10)
+  number.toFixed(decimalPlaces)
 
 export const cleanInt = (str: string, padding = 0) =>
   parseInt(hexaDigest(str, 0, 1024, padding), 16);
