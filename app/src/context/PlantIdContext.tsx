@@ -1,5 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { tokenContract } from '../eth/token-contract';
+import { infoPlantId } from '../plants/plant-id-tools';
+import { PlantData } from '../plants/plant-types';
 
 export enum PlantResolvingStatus {
   Loading,
@@ -8,7 +10,7 @@ export enum PlantResolvingStatus {
 
 interface PlantIdStatus {
   status: PlantResolvingStatus,
-  value?: number
+  value?: PlantData
 }
 
 interface PlantIdContextInterface {
@@ -27,7 +29,7 @@ export const PlantIdContextProvider: React.FunctionComponent = ({ children }) =>
     setPlantsMap((ori) => ({ ...ori, [id]: { status: PlantResolvingStatus.Loading } }))
     tokenContract.methods.getPlant(`0x${id}`).call({}).then(
       ({ plantId }: { plantId: string }) =>
-        setPlantsMap((ori) => ({ ...ori, [id]: { status: PlantResolvingStatus.Loaded, value: parseInt(plantId) } }))
+        setPlantsMap((ori) => ({ ...ori, [id]: { status: PlantResolvingStatus.Loaded, value: infoPlantId(plantId) } }))
     )
   }, []);
 

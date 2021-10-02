@@ -1,3 +1,4 @@
+import { PlantData, PlantRarity } from "./plant-types"
 import { plantsList } from "./plants-info";
 
 const convertID = (plant: string) => {
@@ -10,16 +11,12 @@ const convertID = (plant: string) => {
   return { id, img, rarity };
 };
 
-const calculateRarity = (num: string) => {
-  let rarityType = "",
-    color = "",
-    rarityNum = 0;
+const calculateRarity = (num: string): { rarityType: PlantRarity, rarityNum: number, color: string } => {
   let rarity = parseInt(num);
-  if (rarity >= 0 && rarity <= 59) {
-    rarityType = "Common";
-    rarityNum = 0;
+  let rarityType: PlantRarity = "Common",
+    rarityNum = 0,
     color = "#198754";
-  } else if (rarity >= 60 && rarity <= 88) {
+  if (rarity >= 60 && rarity <= 88) {
     rarityType = "Uncommon";
     rarityNum = 1;
     color = "#0d6efd";
@@ -35,9 +32,9 @@ const calculateRarity = (num: string) => {
   return { rarityType, rarityNum, color };
 };
 
-export const infoPlantId = (plantId: string) => {
+export const infoPlantId = (plantId: string): PlantData => {
   let { id, rarity } = convertID(plantId);
-  let { rarityNum, rarityType } = calculateRarity(rarity);
+  let { rarityNum, rarityType, color } = calculateRarity(rarity);
   const plant = plantsList.find(obj => obj.id === id)
   if (plant === undefined) {
     throw new Error(`plant non existant for id ${plantId}`)
@@ -47,9 +44,8 @@ export const infoPlantId = (plantId: string) => {
   return {
     element,
     le,
-    baseLE,
-    hour,
     type,
-    rarityType
+    rarityType,
+    rarityColor: color
   }
 }

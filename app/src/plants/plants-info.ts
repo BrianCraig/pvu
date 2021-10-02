@@ -1,10 +1,12 @@
+import { PlantElements, PlantTypes } from "./plant-types";
+
 export interface PlantInfoInterface {
   id: string,
-  element: "Fire" | "Ice" | "Electro" | "Water" | "Light" | "Wind" | "Parasite" | "Metal" | "Dark",
+  element: PlantElements,
   baseLE: number[],
   hour: string,
   step: "1" | "5" | "10",
-  type: "Plant" | "Mother tree"
+  type: PlantTypes
 }
 
 export const plantsList: PlantInfoInterface[] = [

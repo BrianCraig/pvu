@@ -17,19 +17,17 @@ const PlantIdLabelsComponent: React.FunctionComponent<{ auction: Auction }> = ({
     resolveId(auction.id)
     return null;
   }
-  if (plantQuery.status === PlantResolvingStatus.Loading)
+  if (plantQuery.status === PlantResolvingStatus.Loading || plantQuery.value === undefined)
     return null;
-
-  let { baseLE, element, hour, le, type, rarityType } = infoPlantId((plantQuery.value || 1000).toString())
   return <>
     <Label color='orange'>
-      <Icon name='cogs' /> {roundAccurately(le, 3)}
+      <Icon name='cogs' /> {roundAccurately(plantQuery.value.le, 3)}
     </Label>
     <Label color='blue'>
-      <Icon name='cube' /> {element}
+      <Icon name='cube' /> {plantQuery.value.element}
     </Label>
-    <Label>
-      {rarityType}
+    <Label style={{ backgroundColor: plantQuery.value.rarityColor, color: "white" }}>
+      {plantQuery.value.rarityType}
     </Label>
   </>
 }
