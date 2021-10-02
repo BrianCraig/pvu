@@ -18,13 +18,9 @@ export type ZeroXHexaString = string;
 export interface Auction {
   id: HexaString,
   tx: HexaString,
-  version: {
-    block: HexaString,
-    index: HexaString
-  },
   price: HexaString,
-  timestamp: number,
-  endTimestamp?: number,
+  block: number,
+  endBlock?: number,
   status: STATUS
 };
 

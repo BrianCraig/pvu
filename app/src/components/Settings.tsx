@@ -10,8 +10,6 @@ export const SettingsComponent = () => {
     setMinutes,
     filterOpen,
     toggleFilterOpen,
-    every,
-    setEvery,
     autobuyMax,
     setAutobuyMax,
     autobuyMin,
@@ -40,14 +38,6 @@ export const SettingsComponent = () => {
       onClick={toggleFilterOpen}>
       Abiertos
     </Button>
-
-    <span>refreshRate every: </span>
-    <Input
-      className={"smallinput"}
-      onChange={(event) => setEvery(event.target.value)}
-      value={every}
-      placeholder="refresh rate"
-    />
     <span> Autobuy: </span>
     <Input
       className={"smallinput"}

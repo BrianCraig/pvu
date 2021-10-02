@@ -1,13 +1,15 @@
-import { useContext } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { differenceInSeconds } from 'date-fns'
 import { Button, Card, Label, Icon } from 'semantic-ui-react'
 import { PlantIdContext, PlantResolvingStatus } from '../context/PlantIdContext'
 import { Auction, STATUS } from '../types'
-import { roundAccurately, stringPrice } from '../utils'
+import { getAuctionDate, roundAccurately, stringPrice } from '../utils'
 import "./plant.css"
 import { eth } from '../eth/eth-instance'
 import { tradeContract } from '../eth/trade-contract'
 import { PlantElements } from '../plants/plant-types'
+import { BlockContext } from '../context/BlockContext'
+import { BlockHeader } from 'web3-eth'
 
 type PlantElementsUI = {
   [key in PlantElements]: {
@@ -79,12 +81,30 @@ const PlantIdLabelsComponent: React.FunctionComponent<{ auction: Auction }> = ({
   </>
 }
 
+export const PlantTimeComponent: React.FunctionComponent<{ auction: Auction, blocks: Map<number, BlockHeader> }> = ({ auction, blocks }) => {
+  //eslint-disable-next-line
+  const [update, setUpdate] = useState<number>()
+  useEffect(() => {
+    let timer1 = setInterval(
+      () => setUpdate(Math.random()), 1000
+    );
+    return () => {
+      clearInterval(timer1);
+    };
+  }, []);
+
+  return <Label >
+    <Icon name='time' /> {differenceInSeconds(Date.now(), getAuctionDate(auction, blocks))}s
+  </Label>
+}
+
 export const PlantComponent: React.FunctionComponent<{ auction: Auction }> = ({ auction }) => {
   let oc = () => {
     tradeContract.methods
       .bid(`0x${auction.id}`, `0x${auction.price}`)
       .send({ from: eth.defaultAccount, gasPrice: 6e9, gas: 300000 });
   };
+  let { blocks } = useContext(BlockContext);
   return (
     <Card>
       <Card.Content>
@@ -92,9 +112,7 @@ export const PlantComponent: React.FunctionComponent<{ auction: Auction }> = ({ 
           <Label color='green'>
             <Icon name='usd' /> {stringPrice(auction.price)}
           </Label>
-          <Label >
-            <Icon name='time' /> {differenceInSeconds(Date.now(), new Date(auction.timestamp * 1000))}s
-          </Label>
+          <PlantTimeComponent auction={auction} blocks={blocks} />
           <PlantIdLabelsComponent auction={auction} />
         </Card.Description>
       </Card.Content>

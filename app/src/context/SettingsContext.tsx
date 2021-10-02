@@ -13,8 +13,6 @@ interface SettingsContextInterface {
   setMinutes: Dispatch<SetStateAction<string>>,
   filterOpen: boolean,
   toggleFilterOpen: () => void,
-  every: string,
-  setEvery: Dispatch<SetStateAction<string>>,
   autobuyMax: string,
   setAutobuyMax: Dispatch<SetStateAction<string>>,
   autobuyMin: string,
@@ -30,8 +28,6 @@ export const SettingsContext = React.createContext<SettingsContextInterface>({
   setMinutes: () => { },
   filterOpen: false,
   toggleFilterOpen: () => { },
-  every: "",
-  setEvery: () => { },
   autobuyMax: "",
   setAutobuyMax: () => { },
   autobuyMin: "",
@@ -44,7 +40,6 @@ export const SettingsContextProvider: React.FunctionComponent = ({ children }) =
   const [lessThan, setLessThan] = useState<string>("40.01");
   const [minutes, setMinutes] = useState("1");
   const [filterOpen, toggleFilterOpen] = useToggle(false);
-  const [every, setEvery] = useState("1");
   const [autobuyMax, setAutobuyMax] = useState("");
   const [autobuyMin, setAutobuyMin] = useState("");
   const [useAutobuy, toggleAutobuy] = useToggle(false);
@@ -57,8 +52,6 @@ export const SettingsContextProvider: React.FunctionComponent = ({ children }) =
       setMinutes,
       filterOpen,
       toggleFilterOpen,
-      every,
-      setEvery,
       autobuyMax,
       setAutobuyMax,
       autobuyMin,
