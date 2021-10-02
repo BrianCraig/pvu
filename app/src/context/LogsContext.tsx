@@ -103,6 +103,7 @@ export const LogsContextProvider: React.FunctionComponent<{ block: string }> = (
           ) {
             return;
           }
+          // eslint-disable-next-line 
           boughtList = [...boughtList, tx.id];
           tradeContract.methods
             .bid(`0x${tx.id}`, `0x${tx.price}`)
@@ -123,6 +124,7 @@ export const LogsContextProvider: React.FunctionComponent<{ block: string }> = (
 
   useEffect(() => {
     fetchit();
+    // eslint-disable-next-line 
   }, [redo]);
 
   return <LogsContext.Provider value={

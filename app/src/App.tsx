@@ -5,12 +5,6 @@ import { ZeroXHexaString } from "./types";
 import { LogsContextProvider } from "./context/LogsContext";
 import { AppLayout } from "./components/AppLayout";
 
-const styleLink = document.createElement("link");
-styleLink.rel = "stylesheet";
-styleLink.href =
-  "https://cdn.jsdelivr.net/npm/semantic-ui/dist/semantic.min.css";
-document.head.appendChild(styleLink);
-
 let myAddress: ZeroXHexaString;
 
 const start = async (): Promise<string> => {
