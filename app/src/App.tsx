@@ -13,13 +13,6 @@ document.head.appendChild(styleLink);
 
 let myAddress: ZeroXHexaString;
 
-const statusMap = {
-  0: "Oferta",
-  1: "Cancelado",
-  2: "Comprado",
-  3: "Otro?"
-};
-
 const start = async (): Promise<string> => {
   // @ts-ignore
   if (window.ethereum) {
@@ -34,9 +27,11 @@ const start = async (): Promise<string> => {
   eth.defaultAccount = myAddress;
   return currentBlock.toString();
 }
+/*
 function sleep(time: number) {
   return new Promise((resolve) => setTimeout(resolve, time));
 }
+*/
 
 /*
 useEffect(() => {

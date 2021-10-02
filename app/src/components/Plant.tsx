@@ -5,9 +5,56 @@ import { PlantIdContext, PlantResolvingStatus } from '../context/PlantIdContext'
 import { Auction, STATUS } from '../types'
 import { roundAccurately, stringPrice } from '../utils'
 import "./plant.css"
-import { infoPlantId } from '../plants/plant-id-tools'
 import { eth } from '../eth/eth-instance'
 import { tradeContract } from '../eth/trade-contract'
+import { PlantElements } from '../plants/plant-types'
+
+type PlantElementsUI = {
+  [key in PlantElements]: {
+    elementColor: string
+    elementIcon: string
+  }
+}
+
+let elementsUI: PlantElementsUI = {
+  "Dark": {
+    elementColor: "#5e4771",
+    elementIcon: ""
+  },
+  "Electro": {
+    elementColor: "#ba7a14",
+    elementIcon: ""
+  },
+  "Fire": {
+    elementColor: "#7e2121",
+    elementIcon: ""
+  },
+  "Ice": {
+    elementColor: "#00647a",
+    elementIcon: ""
+  },
+  "Light": {
+    elementColor: "#649cde",
+    elementIcon: ""
+  },
+  "Metal": {
+    elementColor: "#844903",
+    elementIcon: ""
+  },
+  "Parasite": {
+    elementColor: "#790b8b",
+    elementIcon: ""
+  },
+  "Water": {
+    elementColor: "#844903",
+    elementIcon: ""
+  },
+  "Wind": {
+    elementColor: "#236025",
+    elementIcon: ""
+  }
+}
+
 
 const PlantIdLabelsComponent: React.FunctionComponent<{ auction: Auction }> = ({ auction }) => {
 
@@ -20,11 +67,11 @@ const PlantIdLabelsComponent: React.FunctionComponent<{ auction: Auction }> = ({
   if (plantQuery.status === PlantResolvingStatus.Loading || plantQuery.value === undefined)
     return null;
   return <>
-    <Label color='orange'>
+    <Label color='purple'>
       <Icon name='cogs' /> {roundAccurately(plantQuery.value.le, 3)}
     </Label>
-    <Label color='blue'>
-      <Icon name='cube' /> {plantQuery.value.element}
+    <Label style={{ backgroundColor: elementsUI[plantQuery.value.element].elementColor, color: "white" }}>
+      {plantQuery.value.element}
     </Label>
     <Label style={{ backgroundColor: plantQuery.value.rarityColor, color: "white" }}>
       {plantQuery.value.rarityType}
@@ -42,7 +89,7 @@ export const PlantComponent: React.FunctionComponent<{ auction: Auction }> = ({ 
     <Card>
       <Card.Content>
         <Card.Description className={"plantdescription"}>
-          <Label color='teal'>
+          <Label color='green'>
             <Icon name='usd' /> {stringPrice(auction.price)}
           </Label>
           <Label >
