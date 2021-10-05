@@ -72,4 +72,19 @@ export const getAuctionTimestamp = (auction: Auction, blocks: Map<number, BlockH
 
 export const getAuctionDate = (auction: Auction, blocks: Map<number, BlockHeader>): Date =>
   new Date(getAuctionTimestamp(auction, blocks));
+
+export const getAuctionEndTimestamp = (auction: Auction, blocks: Map<number, BlockHeader>): number => {
+  if (auction.endBlock === undefined) return Date.now().valueOf();
+  let info = blocks.get(auction.endBlock);
+  if (info === undefined) {
+    return Date.now().valueOf();
+  }
+  if (typeof info.timestamp === "string") {
+    return parseInt(info.timestamp, 10) * 1000;
+  }
+  return info.timestamp * 1000;
+}
+
+export const getAuctionEndDate = (auction: Auction, blocks: Map<number, BlockHeader>): Date =>
+  new Date(getAuctionEndTimestamp(auction, blocks));
 export const timestampFromTx = (tx: TxLog) => cleanInt(tx.timeStamp, 2);

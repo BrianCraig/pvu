@@ -3,7 +3,7 @@ import { differenceInSeconds } from 'date-fns'
 import { Button, Card, Label, Icon } from 'semantic-ui-react'
 import { PlantIdContext, PlantResolvingStatus } from '../context/PlantIdContext'
 import { Auction, STATUS } from '../types'
-import { getAuctionDate, roundAccurately, stringPrice } from '../utils'
+import { getAuctionDate, getAuctionEndDate, roundAccurately, stringPrice } from '../utils'
 import "./plant.css"
 import { eth } from '../eth/eth-instance'
 import { tradeContract } from '../eth/trade-contract'
@@ -92,9 +92,8 @@ export const PlantTimeComponent: React.FunctionComponent<{ auction: Auction, blo
       clearInterval(timer1);
     };
   }, []);
-
   return <Label >
-    <Icon name='time' /> {differenceInSeconds(Date.now(), getAuctionDate(auction, blocks))}s
+    <Icon name='time' /> {differenceInSeconds(getAuctionEndDate(auction, blocks), getAuctionDate(auction, blocks))}s
   </Label>
 }
 
