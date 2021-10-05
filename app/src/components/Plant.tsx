@@ -97,6 +97,14 @@ export const PlantTimeComponent: React.FunctionComponent<{ auction: Auction, blo
   </Label>
 }
 
+const statusMap: { [key in STATUS]: string } = {
+  0: "Buy",
+  1: "Canceled",
+  2: "Bougth",
+  3: "Wtf ??"
+};
+
+
 export const PlantComponent: React.FunctionComponent<{ auction: Auction }> = ({ auction }) => {
   let oc = () => {
     tradeContract.methods
@@ -118,7 +126,8 @@ export const PlantComponent: React.FunctionComponent<{ auction: Auction }> = ({ 
       <Card.Content extra>
         <div className='ui'>
           <Button onClick={oc} primary fluid disabled={auction.status !== STATUS.OFFER}>
-            Buy
+            {statusMap[auction.status]}
+            {auction.endBlock ? ` ${auction.endBlock - auction.block} blocks` : null}
           </Button>
         </div>
       </Card.Content>
