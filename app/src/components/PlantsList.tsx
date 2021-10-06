@@ -1,11 +1,11 @@
-import { differenceInSeconds } from "date-fns";
+import { compareDesc, differenceInSeconds } from "date-fns";
 import { useContext } from "react";
 import { Card } from "semantic-ui-react"
 import { BlockContext } from "../context/BlockContext";
 import { LogsContext } from "../context/LogsContext";
 import { SettingsContext } from "../context/SettingsContext";
 import { STATUS } from "../types";
-import { cleanInt, getAuctionDate, getAuctionTimestamp } from "../utils";
+import { cleanInt, getAuctionDate } from "../utils";
 import { PlantComponent } from "./Plant"
 
 export const PlantsList = () => {
@@ -20,7 +20,7 @@ export const PlantsList = () => {
         differenceInSeconds(Date.now(), getAuctionDate(tx, blocks)) / 60
     )
     .filter((tx) => (filterOpen ? tx.status === STATUS.OFFER : true));
-  tablaData.sort((a, b) => getAuctionTimestamp(b, blocks) - getAuctionTimestamp(a, blocks));
+  tablaData.sort((a, b) => compareDesc(getAuctionDate(a, blocks), getAuctionDate(b, blocks)));
   return <div style={{ margin: "10px" }}>
     <Card.Group>
       {tablaData.map(auction => <PlantComponent auction={auction} key={auction.id} />)}

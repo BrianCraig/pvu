@@ -1,5 +1,6 @@
 import { BlockHeader } from "web3-eth";
-import { Auction, AuctionMap, HexaString, STATUS, TxLog } from "./types";
+import { newHeadProcessed } from "./eth/subscribe";
+import { Auction, AuctionMap, HexaString, STATUS } from "./types";
 
 const topicMap: { [key: string]: STATUS } = {
   "0xa9c8dfcda5664a5a124c713e386da27de87432d5b668e79458501eb296389ba7":
@@ -70,21 +71,13 @@ export const getAuctionTimestamp = (auction: Auction, blocks: Map<number, BlockH
   return info.timestamp * 1000;
 }
 
-export const getAuctionDate = (auction: Auction, blocks: Map<number, BlockHeader>): Date =>
-  new Date(getAuctionTimestamp(auction, blocks));
-
-export const getAuctionEndTimestamp = (auction: Auction, blocks: Map<number, BlockHeader>): number => {
-  if (auction.endBlock === undefined) return Date.now().valueOf();
-  let info = blocks.get(auction.endBlock);
-  if (info === undefined) {
-    return Date.now().valueOf();
-  }
-  if (typeof info.timestamp === "string") {
-    return parseInt(info.timestamp, 10) * 1000;
-  }
-  return info.timestamp * 1000;
+export const getAuctionDate = (auction: Auction, blocks: Map<number, newHeadProcessed>): Date => {
+  let info = blocks.get(auction.block);
+  return info ? info.timestamp : new Date();;
 }
 
-export const getAuctionEndDate = (auction: Auction, blocks: Map<number, BlockHeader>): Date =>
-  new Date(getAuctionEndTimestamp(auction, blocks));
-export const timestampFromTx = (tx: TxLog) => cleanInt(tx.timeStamp, 2);
+export const getAuctionEndDate = (auction: Auction, blocks: Map<number, newHeadProcessed>): Date => {
+  if (auction.endBlock === undefined) return new Date()
+  let info = blocks.get(auction.endBlock);
+  return info ? info.timestamp : new Date();;
+}

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { BlockHeader } from 'web3-eth';
-import { eth } from '../eth/eth-instance';
+import { metamasknewHeadSubscribe } from '../eth/metamaksSubscription';
+import { newHeadProcessed } from '../eth/subscribe';
 
 interface BlockContextInterface {
-  blocks: Map<number, BlockHeader>,
+  blocks: Map<number, newHeadProcessed>,
   updateValue: number
 }
 
@@ -13,18 +13,19 @@ export const BlockContext = React.createContext<BlockContextInterface>({
 });
 
 export const BlockContextProvider: React.FunctionComponent = ({ children }) => {
-  let [blocks] = useState(new Map<number, BlockHeader>());
+  let [blocks] = useState(new Map<number, newHeadProcessed>());
   let [updateValue, setUpdateValue] = useState<number>(0);
 
   useEffect(() => {
-    let subscription = eth.subscribe('newBlockHeaders');
-    subscription.on("data", (data) => {
-      blocks.set(data.number, data);
+
+    let subscription = metamasknewHeadSubscribe();
+    subscription.onEvent((event) => {
+      blocks.set(event.block, event);
       setUpdateValue(Math.random());
     })
 
     return () => {
-      subscription.unsubscribe();
+      subscription.stop();
     }
     //eslint-disable-next-line
   }, []);

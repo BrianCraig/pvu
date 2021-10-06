@@ -9,7 +9,7 @@ import { eth } from '../eth/eth-instance'
 import { tradeContract } from '../eth/trade-contract'
 import { PlantElements } from '../plants/plant-types'
 import { BlockContext } from '../context/BlockContext'
-import { BlockHeader } from 'web3-eth'
+import { newHeadProcessed } from '../eth/subscribe'
 
 type PlantElementsUI = {
   [key in PlantElements]: {
@@ -81,7 +81,7 @@ const PlantIdLabelsComponent: React.FunctionComponent<{ auction: Auction }> = ({
   </>
 }
 
-export const PlantTimeComponent: React.FunctionComponent<{ auction: Auction, blocks: Map<number, BlockHeader> }> = ({ auction, blocks }) => {
+export const PlantTimeComponent: React.FunctionComponent<{ auction: Auction, blocks: Map<number, newHeadProcessed> }> = ({ auction, blocks }) => {
   //eslint-disable-next-line
   const [update, setUpdate] = useState<number>()
   useEffect(() => {
