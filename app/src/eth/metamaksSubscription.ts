@@ -7,12 +7,12 @@ export const metamaskLogsSubscribe = (): EthSubscription<logProcessed> => {
   return {
     onEvent: (e => {
       subscription.on("data", (tx) => {
-        e(({
+        e({
           id: tx.transactionHash,
           block: tx.blockNumber,
           topic: tx.topics[0],
           data: tx.data
-        }))
+        })
       })
     }),
     stop: () => {
@@ -27,10 +27,10 @@ export const metamasknewHeadSubscribe = (): EthSubscription<newHeadProcessed> =>
     onEvent: (e => {
       subscription.on("data", (tx) => {
         let timestamp = (typeof tx.timestamp === "string") ? hexToNumber(tx.timestamp) : tx.timestamp;
-        e(({
+        e({
           block: tx.number,
           timestamp: new Date(timestamp * 1000)
-        }))
+        })
       })
     }),
     stop: () => {

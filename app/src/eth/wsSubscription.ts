@@ -1,3 +1,66 @@
+import { RequestManager, Client, WebSocketTransport } from "@open-rpc/client-js";
+import { EthSubscription, logProcessed, newHeadProcessed } from "./subscribe";
+import { hexToNumber } from "web3-utils";
+
+const transport = new WebSocketTransport("wss://bsc-ws-node.nariox.org:443");
+const requestManager = new RequestManager([transport]);
+const client = new Client(requestManager);
+
+interface RpcResponse {
+  subscription: string, result: any
+}
+
+const subscriptions: { [key: string]: (e: any) => void } = {};
+client.onNotification((e) => {
+  let { subscription, result } = e.params as RpcResponse;
+  if (subscriptions[subscription]) {
+    subscriptions[subscription](result)
+  } else {
+    console.log("unhandled notification")
+    console.log(e)
+  };
+})
+
+
+export const wsLogsSubscribe = async (): Promise<EthSubscription<logProcessed>> => {
+  const id = await client.request({ method: "eth_subscribe", params: ["logs", { address: "0x926eae99527a9503eadb4c9e927f21f84f20c977" }] })
+  return {
+    onEvent: (e => {
+      subscriptions[id] = (tx) => {
+        e({
+          id: tx.transactionHash,
+          block: hexToNumber(tx.blockNumber),
+          topic: tx.topics[0],
+          data: tx.data
+        })
+      }
+    }),
+    stop: () => {
+      client.request({ method: "eth_unsubscribe", params: [id] })
+      delete (subscriptions[id]);
+    }
+  }
+}
+
+export const wsNewHeadSubscribe = async (): Promise<EthSubscription<newHeadProcessed>> => {
+  const id = await client.request({ method: "eth_subscribe", params: ["newHeads"] });
+  return {
+    onEvent: (e => {
+      subscriptions[id] = (tx) => {
+        e({
+          block: hexToNumber(tx.number),
+          timestamp: new Date(hexToNumber(tx.timestamp) * 1000)
+        })
+      }
+    }),
+    stop: () => {
+      client.request({ method: "eth_unsubscribe", params: [id] })
+      delete (subscriptions[id]);
+    }
+  }
+}
+
+/**
 let x = {
   jsonrpc: '2.0',
   method: 'eth_subscription',
@@ -42,5 +105,4 @@ let y = {
     }
   }
 }
-
-export { }
+*/

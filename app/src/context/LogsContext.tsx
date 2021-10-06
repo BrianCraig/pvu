@@ -1,7 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { eth } from '../eth/eth-instance';
-import { metamaskLogsSubscribe } from '../eth/metamaksSubscription';
+import { EthSubscription, logProcessed } from '../eth/subscribe';
 import { tradeContract } from '../eth/trade-contract';
+import { wsLogsSubscribe } from '../eth/wsSubscription';
 import { AuctionMap, HexaString, STATUS } from '../types';
 import { boughtDig, cancelDig, cleanInt, existsId, getTopic, offerDig } from '../utils';
 import { SettingsContext } from './SettingsContext';
@@ -26,44 +27,47 @@ export const LogsContextProvider: React.FunctionComponent = ({ children }) => {
   let [boughtList, setBoughtList] = useState<HexaString[]>([]);
 
   useEffect(() => {
-    let subscription = metamaskLogsSubscribe();
-    subscription.onEvent((tx) => {
-      if (getTopic(tx) === STATUS.OFFER) {
-        let dig = offerDig(tx);
-        if (existsId(dig.id, data)) {
-          return;
+    let subscription: EthSubscription<logProcessed>;
+    const eff = async () => {
+      subscription = await wsLogsSubscribe();
+      subscription.onEvent((tx) => {
+        if (getTopic(tx) === STATUS.OFFER) {
+          let dig = offerDig(tx);
+          if (existsId(dig.id, data)) {
+            return;
+          }
+          data[dig.id] = {
+            id: dig.id,
+            tx: tx.id,
+            price: dig.price,
+            block: tx.block,
+            status: STATUS.OFFER
+          };
+        } else if (getTopic(tx) === STATUS.BOUGHT) {
+          let dig = boughtDig(tx);
+          if (!existsId(dig.id, data)) {
+            return;
+          }
+          data[dig.id] = {
+            ...data[dig.id],
+            endBlock: tx.block,
+            status: STATUS.BOUGHT
+          };
+        } else if (getTopic(tx) === STATUS.CANCELLED) {
+          let dig = cancelDig(tx);
+          if (!existsId(dig.id, data)) {
+            return;
+          }
+          data[dig.id] = {
+            ...data[dig.id],
+            endBlock: tx.block,
+            status: STATUS.CANCELLED
+          };
         }
-        data[dig.id] = {
-          id: dig.id,
-          tx: tx.id,
-          price: dig.price,
-          block: tx.block,
-          status: STATUS.OFFER
-        };
-      } else if (getTopic(tx) === STATUS.BOUGHT) {
-        let dig = boughtDig(tx);
-        if (!existsId(dig.id, data)) {
-          return;
-        }
-        data[dig.id] = {
-          ...data[dig.id],
-          endBlock: tx.block,
-          status: STATUS.BOUGHT
-        };
-      } else if (getTopic(tx) === STATUS.CANCELLED) {
-        let dig = cancelDig(tx);
-        if (!existsId(dig.id, data)) {
-          return;
-        }
-        data[dig.id] = {
-          ...data[dig.id],
-          endBlock: tx.block,
-          status: STATUS.CANCELLED
-        };
-      }
-      setUpdateValue(Math.random());
-    })
-
+        setUpdateValue(Math.random());
+      })
+    }
+    eff();
     return () => {
       subscription.stop();
     }

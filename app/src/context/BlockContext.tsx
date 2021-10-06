@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { metamasknewHeadSubscribe } from '../eth/metamaksSubscription';
-import { newHeadProcessed } from '../eth/subscribe';
+import { EthSubscription, newHeadProcessed } from '../eth/subscribe';
+import { wsNewHeadSubscribe } from '../eth/wsSubscription';
 
 interface BlockContextInterface {
   blocks: Map<number, newHeadProcessed>,
@@ -17,13 +17,15 @@ export const BlockContextProvider: React.FunctionComponent = ({ children }) => {
   let [updateValue, setUpdateValue] = useState<number>(0);
 
   useEffect(() => {
-
-    let subscription = metamasknewHeadSubscribe();
-    subscription.onEvent((event) => {
-      blocks.set(event.block, event);
-      setUpdateValue(Math.random());
-    })
-
+    let subscription: EthSubscription<newHeadProcessed>;
+    const eff = async () => {
+      let subscription = await wsNewHeadSubscribe();
+      subscription.onEvent((event) => {
+        blocks.set(event.block, event);
+        setUpdateValue(Math.random());
+      })
+    }
+    eff();
     return () => {
       subscription.stop();
     }
