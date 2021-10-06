@@ -56,7 +56,7 @@ export const LogsContextProvider: React.FunctionComponent = ({ children }) => {
         }
         data[dig.id] = {
           ...data[dig.id],
-          block: tx.blockNumber,
+          endBlock: tx.blockNumber,
           status: STATUS.CANCELLED
         };
       }
