@@ -1,5 +1,4 @@
-import { BlockHeader } from "web3-eth";
-import { newHeadProcessed } from "./eth/subscribe";
+import { newHeadProcessed, logProcessed } from "./eth/subscribe";
 import { Auction, AuctionMap, HexaString, STATUS } from "./types";
 
 const topicMap: { [key: string]: STATUS } = {
@@ -11,27 +10,11 @@ const topicMap: { [key: string]: STATUS } = {
     STATUS.BOUGHT
 };
 
-interface Log {
-  address: string;
-  data: string;
-  topics: string[];
-  logIndex: number;
-  transactionIndex: number;
-  transactionHash: string;
-  blockHash: string;
-  blockNumber: number;
-}
-
-export const getTopic = (tx: Log) => {
-  let topic = topicMap[tx.topics[0]];
+export const getTopic = (tx: logProcessed) => {
+  let topic = topicMap[tx.topic];
   if (topic === undefined) return STATUS.OTHER;
   return topic;
 };
-
-export const versionFromTx = (tx: Log) => ({
-  block: tx.blockNumber,
-  index: tx.logIndex
-});
 
 export const existsId = (id: HexaString, data: AuctionMap) => {
   return data[id] !== undefined;
@@ -40,15 +23,15 @@ export const existsId = (id: HexaString, data: AuctionMap) => {
 export const hexaDigest = (str: string, index: number, size = 1024, padding = 2) =>
   str.substring(padding + index * size, padding + (index + 1) * size);
 
-export const offerDig = (tx: Log) => ({
+export const offerDig = (tx: logProcessed) => ({
   id: hexaDigest(tx.data, 0, 64),
   price: hexaDigest(tx.data, 1, 64)
 });
 
-export const cancelDig = (tx: Log) => ({
+export const cancelDig = (tx: logProcessed) => ({
   id: hexaDigest(tx.data, 0, 64)
 });
-export const boughtDig = (tx: Log) => ({
+export const boughtDig = (tx: logProcessed) => ({
   id: hexaDigest(tx.data, 0, 64)
 });
 
@@ -59,17 +42,6 @@ export const cleanInt = (str: string, padding = 0) =>
   parseInt(hexaDigest(str, 0, 1024, padding), 16);
 
 export const stringPrice = (str: string) => roundAccurately(cleanInt(str) * 1e-18, 3);
-
-export const getAuctionTimestamp = (auction: Auction, blocks: Map<number, BlockHeader>): number => {
-  let info = blocks.get(auction.block);
-  if (info === undefined) {
-    return Date.now().valueOf();
-  }
-  if (typeof info.timestamp === "string") {
-    return parseInt(info.timestamp, 10) * 1000;
-  }
-  return info.timestamp * 1000;
-}
 
 export const getAuctionDate = (auction: Auction, blocks: Map<number, newHeadProcessed>): Date => {
   let info = blocks.get(auction.block);

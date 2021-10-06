@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { eth } from '../eth/eth-instance';
+import { metamaskLogsSubscribe } from '../eth/metamaksSubscription';
 import { tradeContract } from '../eth/trade-contract';
 import { AuctionMap, HexaString, STATUS } from '../types';
 import { boughtDig, cancelDig, cleanInt, existsId, getTopic, offerDig } from '../utils';
@@ -25,8 +26,8 @@ export const LogsContextProvider: React.FunctionComponent = ({ children }) => {
   let [boughtList, setBoughtList] = useState<HexaString[]>([]);
 
   useEffect(() => {
-    let subscription = eth.subscribe('logs', { address: '0x926eae99527a9503eadb4c9e927f21f84f20c977' });
-    subscription.on("data", (tx) => {
+    let subscription = metamaskLogsSubscribe();
+    subscription.onEvent((tx) => {
       if (getTopic(tx) === STATUS.OFFER) {
         let dig = offerDig(tx);
         if (existsId(dig.id, data)) {
@@ -34,9 +35,9 @@ export const LogsContextProvider: React.FunctionComponent = ({ children }) => {
         }
         data[dig.id] = {
           id: dig.id,
-          tx: tx.transactionHash,
+          tx: tx.id,
           price: dig.price,
-          block: tx.blockNumber,
+          block: tx.block,
           status: STATUS.OFFER
         };
       } else if (getTopic(tx) === STATUS.BOUGHT) {
@@ -46,7 +47,7 @@ export const LogsContextProvider: React.FunctionComponent = ({ children }) => {
         }
         data[dig.id] = {
           ...data[dig.id],
-          endBlock: tx.blockNumber,
+          endBlock: tx.block,
           status: STATUS.BOUGHT
         };
       } else if (getTopic(tx) === STATUS.CANCELLED) {
@@ -56,7 +57,7 @@ export const LogsContextProvider: React.FunctionComponent = ({ children }) => {
         }
         data[dig.id] = {
           ...data[dig.id],
-          endBlock: tx.blockNumber,
+          endBlock: tx.block,
           status: STATUS.CANCELLED
         };
       }
@@ -64,7 +65,7 @@ export const LogsContextProvider: React.FunctionComponent = ({ children }) => {
     })
 
     return () => {
-      subscription.unsubscribe();
+      subscription.stop();
     }
     //eslint-disable-next-line
   }, []);
