@@ -10,6 +10,7 @@ import { tradeContract } from '../eth/trade-contract'
 import { PlantElements } from '../plants/plant-types'
 import { BlockContext } from '../context/BlockContext'
 import { newHeadProcessed } from '../eth/subscribe'
+import { SemanticCOLORS } from 'semantic-ui-react/dist/commonjs/generic'
 
 type PlantElementsUI = {
   [key in PlantElements]: {
@@ -58,8 +59,32 @@ let elementsUI: PlantElementsUI = {
 }
 
 
-const PlantIdLabelsComponent: React.FunctionComponent<{ auction: Auction }> = ({ auction }) => {
+let fetchCreator = (id: string) => fetch(`https://backend-farm.plantvsundead.com/get-plant-detail-v2?plantId=${id}`,
+  {
+    //withCredentials: true,
+    headers: { 'Authorization': "Bearer Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwdWJsaWNBZGRyZXNzIjoiMHhlNTkzM2Q5MmNhZjJlM2I4N2VmNjdhMGQwZWI2N2QxYmQ3NTkzZWIzIiwibG9naW5UaW1lIjoxNjMzNTYxNTExMTMzLCJjcmVhdGVEYXRlIjoiMjAyMS0xMC0wNiAyMzowNTowNyIsImlhdCI6MTYzMzU2MTUxMX0.aKZsdvSS4UHaTVx2cLrERKrKFgcISAs4eZS0TLRp-aU" }
+  })
+  .then(response => response.json())
 
+const PlantIdAliveQueryComponent: React.FunctionComponent<{ id: string }> = ({ id }) => {
+  let [response, setResponse] = useState<any>(null);
+  useEffect(() => {
+    fetchCreator(id).then(setResponse)
+  }, [id])
+  let color: SemanticCOLORS = "grey"
+  if (response != null) {
+    color = "red"
+    if (Object.keys(response.data).length > 0) {
+      color = "green"
+    }
+  }
+
+  return <Label color={color} onClick={() => window.open(`https://marketplace.plantvsundead.com/farm#/plant/${id}`, '_blank')!.focus()}>
+    {id}
+  </Label>
+}
+
+const PlantIdLabelsComponent: React.FunctionComponent<{ auction: Auction }> = ({ auction }) => {
   const { plantsMap, resolveId } = useContext(PlantIdContext);
   let plantQuery = plantsMap[auction.id]
   if (plantQuery === undefined) {
@@ -78,9 +103,7 @@ const PlantIdLabelsComponent: React.FunctionComponent<{ auction: Auction }> = ({
     <Label style={{ backgroundColor: plantQuery.value.rarityColor, color: "white" }}>
       {plantQuery.value.rarityType}
     </Label>
-    <Label onClick={() => window.open(`https://marketplace.plantvsundead.com/farm#/plant/${plantQuery.value!.id}`, '_blank')!.focus()}>
-      {plantQuery.value.id}
-    </Label>
+    <PlantIdAliveQueryComponent id={plantQuery.value!.id} />
   </>
 }
 
