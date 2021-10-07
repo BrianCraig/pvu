@@ -4,6 +4,7 @@ export type PlantTypes = "Plant" | "Mother tree"
 export type PlantRarity = "Common" | "Uncommon" | "Rare" | "Mythic"
 
 export interface PlantData {
+  id: string,
   element: PlantElements,
   le: number,
   type: PlantTypes,

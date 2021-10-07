@@ -42,6 +42,7 @@ export const infoPlantId = (plantId: string): PlantData => {
   const { element, baseLE, hour, type } = plant;
   let le = baseLE[rarityNum] / parseFloat(hour);
   return {
+    id: plantId,
     element,
     le,
     type,

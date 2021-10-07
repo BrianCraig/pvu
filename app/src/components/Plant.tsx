@@ -78,6 +78,9 @@ const PlantIdLabelsComponent: React.FunctionComponent<{ auction: Auction }> = ({
     <Label style={{ backgroundColor: plantQuery.value.rarityColor, color: "white" }}>
       {plantQuery.value.rarityType}
     </Label>
+    <Label onClick={() => window.open(`https://marketplace.plantvsundead.com/farm#/plant/${plantQuery.value!.id}`, '_blank')!.focus()}>
+      {plantQuery.value.id}
+    </Label>
   </>
 }
 
