@@ -10,12 +10,8 @@ export const SettingsComponent = () => {
     setMinutes,
     filterOpen,
     toggleFilterOpen,
-    autobuyMax,
-    setAutobuyMax,
-    autobuyMin,
-    setAutobuyMin,
-    useAutobuy,
-    toggleAutobuy
+    bearer,
+    setBearer
   } = useContext(SettingsContext);
   return <>
     <span> price: </span>
@@ -38,21 +34,12 @@ export const SettingsComponent = () => {
       onClick={toggleFilterOpen}>
       Abiertos
     </Button>
-    <span> Autobuy: </span>
+    <span> PVU Bearer:</span>
     <Input
       className={"smallinput"}
-      onChange={(event) => setAutobuyMin(event.target.value || "0.0")}
-      value={autobuyMin}
-      placeholder="AutoBuy Min"
+      onChange={(event) => setBearer(event.target.value)}
+      value={bearer}
+      placeholder="Bearer Token"
     />
-    <Input
-      className={"smallinput"}
-      onChange={(event) => setAutobuyMax(event.target.value || "0.0")}
-      value={autobuyMax}
-      placeholder="AutoBuy Max"
-    />
-    <Button primary={useAutobuy} onClick={toggleAutobuy}>
-      Autobuy Activo
-    </Button>
   </>
 }

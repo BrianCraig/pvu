@@ -11,6 +11,7 @@ import { PlantElements } from '../plants/plant-types'
 import { BlockContext } from '../context/BlockContext'
 import { newHeadProcessed } from '../eth/subscribe'
 import { SemanticCOLORS } from 'semantic-ui-react/dist/commonjs/generic'
+import { SettingsContext } from '../context/SettingsContext'
 
 type PlantElementsUI = {
   [key in PlantElements]: {
@@ -58,18 +59,18 @@ let elementsUI: PlantElementsUI = {
   }
 }
 
-
-let fetchCreator = (id: string) => fetch(`https://backend-farm.plantvsundead.com/get-plant-detail-v2?plantId=${id}`,
+let fetchCreator = (id: string, bearer: string) => fetch(`https://backend-farm.plantvsundead.com/get-plant-detail-v2?plantId=${id}`,
   {
     //withCredentials: true,
-    headers: { 'Authorization': "Bearer Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwdWJsaWNBZGRyZXNzIjoiMHhlNTkzM2Q5MmNhZjJlM2I4N2VmNjdhMGQwZWI2N2QxYmQ3NTkzZWIzIiwibG9naW5UaW1lIjoxNjMzNTYxNTExMTMzLCJjcmVhdGVEYXRlIjoiMjAyMS0xMC0wNiAyMzowNTowNyIsImlhdCI6MTYzMzU2MTUxMX0.aKZsdvSS4UHaTVx2cLrERKrKFgcISAs4eZS0TLRp-aU" }
+    headers: { 'Authorization': "Bearer Token: " + bearer }
   })
   .then(response => response.json())
 
 const PlantIdAliveQueryComponent: React.FunctionComponent<{ id: string }> = ({ id }) => {
   let [response, setResponse] = useState<any>(null);
+  const { bearer } = useContext(SettingsContext);
   useEffect(() => {
-    fetchCreator(id).then(setResponse)
+    fetchCreator(id, bearer).then(setResponse)
   }, [id])
   let color: SemanticCOLORS = "grey"
   if (response != null) {

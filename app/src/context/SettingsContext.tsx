@@ -1,4 +1,5 @@
 import React, { Dispatch, SetStateAction, useCallback, useState } from 'react';
+import { useLocalStorage } from '../utils/hooks';
 
 const useToggle = (initialState = false): [boolean, () => void] => {
   const [state, setState] = useState(initialState);
@@ -13,12 +14,8 @@ interface SettingsContextInterface {
   setMinutes: Dispatch<SetStateAction<string>>,
   filterOpen: boolean,
   toggleFilterOpen: () => void,
-  autobuyMax: string,
-  setAutobuyMax: Dispatch<SetStateAction<string>>,
-  autobuyMin: string,
-  setAutobuyMin: Dispatch<SetStateAction<string>>,
-  useAutobuy: boolean,
-  toggleAutobuy: () => void
+  bearer: string,
+  setBearer: Dispatch<SetStateAction<string>>
 }
 
 export const SettingsContext = React.createContext<SettingsContextInterface>({
@@ -28,21 +25,16 @@ export const SettingsContext = React.createContext<SettingsContextInterface>({
   setMinutes: () => { },
   filterOpen: false,
   toggleFilterOpen: () => { },
-  autobuyMax: "",
-  setAutobuyMax: () => { },
-  autobuyMin: "",
-  setAutobuyMin: () => { },
-  useAutobuy: false,
-  toggleAutobuy: () => { }
+  bearer: "",
+  setBearer: () => { }
 });
 
 export const SettingsContextProvider: React.FunctionComponent = ({ children }) => {
   const [lessThan, setLessThan] = useState<string>("40.01");
   const [minutes, setMinutes] = useState("1");
   const [filterOpen, toggleFilterOpen] = useToggle(false);
-  const [autobuyMax, setAutobuyMax] = useState("");
-  const [autobuyMin, setAutobuyMin] = useState("");
-  const [useAutobuy, toggleAutobuy] = useToggle(false);
+  const [bearer, setBearer] = useLocalStorage('bearer', '')
+
 
   return <SettingsContext.Provider value={
     {
@@ -52,12 +44,8 @@ export const SettingsContextProvider: React.FunctionComponent = ({ children }) =
       setMinutes,
       filterOpen,
       toggleFilterOpen,
-      autobuyMax,
-      setAutobuyMax,
-      autobuyMin,
-      setAutobuyMin,
-      useAutobuy,
-      toggleAutobuy
+      bearer,
+      setBearer
     }} >
     {children}
   </SettingsContext.Provider >

@@ -19,11 +19,6 @@ export const LogsContext = React.createContext<LogsContextInterface>({
 export const LogsContextProvider: React.FunctionComponent = ({ children }) => {
   const [data] = useState<AuctionMap>({});
   let [updateValue, setUpdateValue] = useState<number>(0);
-  const {
-    autobuyMax,
-    autobuyMin,
-    useAutobuy
-  } = useContext(SettingsContext);
   let [boughtList, setBoughtList] = useState<HexaString[]>([]);
 
   useEffect(() => {
@@ -33,9 +28,6 @@ export const LogsContextProvider: React.FunctionComponent = ({ children }) => {
       subscription.onEvent((tx) => {
         if (getTopic(tx) === STATUS.OFFER) {
           let dig = offerDig(tx);
-          if (existsId(dig.id, data)) {
-            return;
-          }
           data[dig.id] = {
             id: dig.id,
             tx: tx.id,
@@ -74,6 +66,7 @@ export const LogsContextProvider: React.FunctionComponent = ({ children }) => {
     //eslint-disable-next-line
   }, []);
 
+  /**
   useEffect(() => {
     if (useAutobuy) {
       let autobuyMaxInt = parseFloat(autobuyMax) * 1e18;
@@ -100,7 +93,7 @@ export const LogsContextProvider: React.FunctionComponent = ({ children }) => {
     }
     setBoughtList(boughtList);
   }, [updateValue, boughtList, autobuyMin, autobuyMax, useAutobuy]);
-
+  */
   return <LogsContext.Provider value={
     {
       logs: data
