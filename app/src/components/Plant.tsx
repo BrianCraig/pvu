@@ -1,17 +1,19 @@
 import { useContext, useEffect, useState } from 'react'
 import { differenceInSeconds } from 'date-fns'
 import { Button, Card, Label, Icon } from 'semantic-ui-react'
+import {fromWei} from "web3-utils";
 import { PlantIdContext, PlantResolvingStatus } from '../context/PlantIdContext'
 import { Auction, STATUS } from '../types'
 import { getAuctionDate, getAuctionEndDate, roundAccurately, stringPrice } from '../utils'
 import "./plant.css"
 import { eth } from '../eth/eth-instance'
 import { tradeContract } from '../eth/trade-contract'
-import { PlantElements } from '../plants/plant-types'
+import { PlantData, PlantElements } from '../plants/plant-types'
 import { BlockContext } from '../context/BlockContext'
 import { newHeadProcessed } from '../eth/subscribe'
 import { SemanticCOLORS } from 'semantic-ui-react/dist/commonjs/generic'
 import { SettingsContext } from '../context/SettingsContext'
+import { MarketplacePriceContext } from '../context/MarketplacePriceContext'
 
 type PlantElementsUI = {
   [key in PlantElements]: {
@@ -105,6 +107,7 @@ const PlantIdLabelsComponent: React.FunctionComponent<{ auction: Auction }> = ({
       {plantQuery.value.rarityType}
     </Label>
     <PlantIdAliveQueryComponent id={plantQuery.value!.id} />
+    <MarketPriceLabelComponent plantData={plantQuery.value!} price={auction.price} />
   </>
 }
 
@@ -130,6 +133,15 @@ const statusMap: { [key in STATUS]: string } = {
   2: "Bougth",
   3: "Wtf ??"
 };
+
+const MarketPriceLabelComponent: React.FunctionComponent<{ plantData: PlantData, price:string }> = ({ plantData, price }) => {
+  let {suggestPrice} =useContext(MarketplacePriceContext);
+  let sp = suggestPrice(plantData.element, plantData.rarityType);
+  let gains =  sp[1] - parseFloat(fromWei(price))
+  return <Label color={gains >0.3 ? "purple" : "grey"}>
+    {`${gains.toFixed(3)} ${sp[0]}`}
+  </Label>
+}
 
 
 export const PlantComponent: React.FunctionComponent<{ auction: Auction }> = ({ auction }) => {

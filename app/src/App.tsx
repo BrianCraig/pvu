@@ -4,6 +4,7 @@ import { eth } from "./eth/eth-instance"
 import { LogsContextProvider } from "./context/LogsContext";
 import { AppLayout } from "./components/AppLayout";
 import { BlockContextProvider } from "./context/BlockContext";
+import { MarketplacePriceContextProvider } from "./context/MarketplacePriceContext";
 
 const start = async (): Promise<void> => {
   let accounts;
@@ -31,7 +32,9 @@ export const App = () => {
   if (ready) {
     return <BlockContextProvider>
       <LogsContextProvider>
-        <AppLayout />
+        <MarketplacePriceContextProvider>
+          <AppLayout />
+        </MarketplacePriceContextProvider>
       </LogsContextProvider>
     </BlockContextProvider>;
   }
