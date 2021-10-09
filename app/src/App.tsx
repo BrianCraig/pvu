@@ -12,7 +12,7 @@ const start = async (): Promise<void> => {
     // @ts-ignore
     window.web3 = eth;
     // @ts-ignore
-    accounts = await window.ethereum.request({ method: 'eth_accounts' });
+    accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
   }
   eth.defaultAccount = accounts[0];
 }
