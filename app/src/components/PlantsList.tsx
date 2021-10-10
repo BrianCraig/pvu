@@ -24,7 +24,7 @@ export const PlantsList = () => {
   tablaData.sort((a, b) => compareDesc(getAuctionDate(a, blocks), getAuctionDate(b, blocks)));
   return <div style={{ margin: "10px" }}>
     <Card.Group>
-      {tablaData.map(auction => <PlantIdContextProvider auction={auction} key={auction.id}>
+      {tablaData.map(auction => <PlantIdContextProvider auction={auction} key={auction.tx}>
         <PlantComponent auction={auction} />
       </PlantIdContextProvider>)}
     </Card.Group>

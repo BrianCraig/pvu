@@ -145,7 +145,7 @@ export const PlantComponent: React.FunctionComponent<{ auction: Auction }> = ({ 
       <Card.Content extra>
         <div className='ui'>
           <Button onClick={oc} primary fluid disabled={auction.status !== STATUS.OFFER || active === false}>
-            {statusMap[auction.status]}
+            {autobuy ? "Autobuying" : statusMap[auction.status]}
             {auction.endBlock ? ` ${auction.endBlock - auction.block} blocks` : null}
           </Button>
         </div>
