@@ -2,7 +2,6 @@ import { StrictMode } from "react";
 import ReactDOM from "react-dom";
 
 import { App } from "./App.tsx";
-import { PlantIdContextProvider } from "./context/PlantIdContext";
 import { SettingsContextProvider } from "./context/SettingsContext";
 
 if (process?.env?.NODE_ENV === 'production') {
@@ -26,9 +25,7 @@ const rootElement = document.getElementById("root");
 ReactDOM.render(
   <StrictMode>
     <SettingsContextProvider>
-      <PlantIdContextProvider>
-        <App />
-      </PlantIdContextProvider>
+      <App />
     </SettingsContextProvider>
   </StrictMode>,
   rootElement

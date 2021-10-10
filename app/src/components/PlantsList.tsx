@@ -3,6 +3,7 @@ import { useContext } from "react";
 import { Card } from "semantic-ui-react"
 import { BlockContext } from "../context/BlockContext";
 import { LogsContext } from "../context/LogsContext";
+import { PlantIdContextProvider } from "../context/PlantIdContext";
 import { SettingsContext } from "../context/SettingsContext";
 import { STATUS } from "../types";
 import { cleanInt, getAuctionDate } from "../utils";
@@ -23,7 +24,9 @@ export const PlantsList = () => {
   tablaData.sort((a, b) => compareDesc(getAuctionDate(a, blocks), getAuctionDate(b, blocks)));
   return <div style={{ margin: "10px" }}>
     <Card.Group>
-      {tablaData.map(auction => <PlantComponent auction={auction} key={auction.id} />)}
+      {tablaData.map(auction => <PlantIdContextProvider auction={auction} key={auction.id}>
+        <PlantComponent auction={auction} />
+      </PlantIdContextProvider>)}
     </Card.Group>
   </div>
 }

@@ -1,8 +1,8 @@
 import { useContext, useEffect, useState } from 'react'
 import { differenceInSeconds } from 'date-fns'
 import { Button, Card, Label, Icon } from 'semantic-ui-react'
-import {fromWei} from "web3-utils";
-import { PlantIdContext, PlantResolvingStatus } from '../context/PlantIdContext'
+import { fromWei } from "web3-utils";
+import { PlantIdContext } from '../context/PlantIdContext'
 import { Auction, STATUS } from '../types'
 import { getAuctionDate, getAuctionEndDate, roundAccurately, stringPrice } from '../utils'
 import "./plant.css"
@@ -12,7 +12,6 @@ import { PlantData, PlantElements } from '../plants/plant-types'
 import { BlockContext } from '../context/BlockContext'
 import { newHeadProcessed } from '../eth/subscribe'
 import { SemanticCOLORS } from 'semantic-ui-react/dist/commonjs/generic'
-import { SettingsContext } from '../context/SettingsContext'
 import { MarketplacePriceContext } from '../context/MarketplacePriceContext'
 
 type PlantElementsUI = {
@@ -61,26 +60,11 @@ let elementsUI: PlantElementsUI = {
   }
 }
 
-let fetchCreator = (id: string, bearer: string) => fetch(`https://backend-farm.plantvsundead.com/get-plant-detail-v2?plantId=${id}`,
-  {
-    //withCredentials: true,
-    headers: { 'Authorization': "Bearer Token: " + bearer }
-  })
-  .then(response => response.json())
-
 const PlantIdAliveQueryComponent: React.FunctionComponent<{ id: string }> = ({ id }) => {
-  let [response, setResponse] = useState<any>(null);
-  const { bearer } = useContext(SettingsContext);
-  useEffect(() => {
-    fetchCreator(id, bearer).then(setResponse)
-  }, [id])
+  const { active } = useContext(PlantIdContext);
   let color: SemanticCOLORS = "grey"
-  if (response != null) {
-    color = "red"
-    if (Object.keys(response.data).length > 0) {
-      color = "green"
-    }
-  }
+  if (active === true) color = "green"
+  if (active === false) color = "red"
 
   return <Label color={color} onClick={() => window.open(`https://marketplace.plantvsundead.com/farm#/plant/${id}`, '_blank')!.focus()}>
     {id}
@@ -88,26 +72,19 @@ const PlantIdAliveQueryComponent: React.FunctionComponent<{ id: string }> = ({ i
 }
 
 const PlantIdLabelsComponent: React.FunctionComponent<{ auction: Auction }> = ({ auction }) => {
-  const { plantsMap, resolveId } = useContext(PlantIdContext);
-  let plantQuery = plantsMap[auction.id]
-  if (plantQuery === undefined) {
-    resolveId(auction.id)
-    return null;
-  }
-  if (plantQuery.status === PlantResolvingStatus.Loading || plantQuery.value === undefined)
-    return null;
+  const { plantData } = useContext(PlantIdContext);
   return <>
     <Label color='purple'>
-      <Icon name='cogs' /> {roundAccurately(plantQuery.value.le, 3)}
+      <Icon name='cogs' /> {roundAccurately(plantData!.le, 3)}
     </Label>
-    <Label style={{ backgroundColor: elementsUI[plantQuery.value.element].elementColor, color: "white" }}>
-      {plantQuery.value.element}
+    <Label style={{ backgroundColor: elementsUI[plantData!.element].elementColor, color: "white" }}>
+      {plantData!.element}
     </Label>
-    <Label style={{ backgroundColor: plantQuery.value.rarityColor, color: "white" }}>
-      {plantQuery.value.rarityType}
+    <Label style={{ backgroundColor: plantData!.rarityColor, color: "white" }}>
+      {plantData!.rarityType}
     </Label>
-    <PlantIdAliveQueryComponent id={plantQuery.value!.id} />
-    <MarketPriceLabelComponent plantData={plantQuery.value!} price={auction.price} />
+    <PlantIdAliveQueryComponent id={plantData!.id} />
+    <MarketPriceLabelComponent plantData={plantData!} price={auction.price} />
   </>
 }
 
@@ -134,25 +111,28 @@ const statusMap: { [key in STATUS]: string } = {
   3: "Wtf ??"
 };
 
-const MarketPriceLabelComponent: React.FunctionComponent<{ plantData: PlantData, price:string }> = ({ plantData, price }) => {
-  let {suggestPrice} =useContext(MarketplacePriceContext);
+const MarketPriceLabelComponent: React.FunctionComponent<{ plantData: PlantData, price: string }> = ({ plantData, price }) => {
+  let { suggestPrice } = useContext(MarketplacePriceContext);
   let sp = suggestPrice(plantData.element, plantData.rarityType);
-  let gains =  sp[1] - parseFloat(fromWei(price))
-  return <Label color={gains >0.3 ? "purple" : "grey"}>
+  let gains = sp[1] - parseFloat(fromWei(price))
+  return <Label color={gains > 0.3 ? "purple" : "grey"}>
     {`${gains.toFixed(3)} ${sp[0]}`}
   </Label>
 }
 
 
 export const PlantComponent: React.FunctionComponent<{ auction: Auction }> = ({ auction }) => {
+  const { plantData, active, autobuy, gains } = useContext(PlantIdContext)
   let oc = () => {
     tradeContract.methods
       .bid(`0x${auction.id}`, `0x${auction.price}`)
       .send({ from: eth.defaultAccount, gasPrice: 6e9, gas: 300000 });
   };
   let { blocks } = useContext(BlockContext);
+  if (plantData === undefined) return null;
+  if (gains! < -1.5) return null;
   return (
-    <Card>
+    <Card raised={autobuy}>
       <Card.Content>
         <Card.Description className={"plantdescription"}>
           <Label color='green'>
@@ -164,7 +144,7 @@ export const PlantComponent: React.FunctionComponent<{ auction: Auction }> = ({ 
       </Card.Content>
       <Card.Content extra>
         <div className='ui'>
-          <Button onClick={oc} primary fluid disabled={auction.status !== STATUS.OFFER}>
+          <Button onClick={oc} primary fluid disabled={auction.status !== STATUS.OFFER || active === false}>
             {statusMap[auction.status]}
             {auction.endBlock ? ` ${auction.endBlock - auction.block} blocks` : null}
           </Button>

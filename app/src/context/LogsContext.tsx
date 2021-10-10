@@ -1,11 +1,8 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { eth } from '../eth/eth-instance';
+import React, { useEffect, useState } from 'react';
 import { EthSubscription, logProcessed } from '../eth/subscribe';
-import { tradeContract } from '../eth/trade-contract';
 import { wsLogsSubscribe } from '../eth/wsSubscription';
 import { AuctionMap, HexaString, STATUS } from '../types';
-import { boughtDig, cancelDig, cleanInt, existsId, getTopic, offerDig } from '../utils';
-import { SettingsContext } from './SettingsContext';
+import { boughtDig, cancelDig, existsId, getTopic, offerDig } from '../utils';
 
 
 interface LogsContextInterface {

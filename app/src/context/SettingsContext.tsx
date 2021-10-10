@@ -30,7 +30,7 @@ export const SettingsContext = React.createContext<SettingsContextInterface>({
 });
 
 export const SettingsContextProvider: React.FunctionComponent = ({ children }) => {
-  const [lessThan, setLessThan] = useState<string>("40.01");
+  const [lessThan, setLessThan] = useLocalStorage('minutesFilter', "40.01");
   const [minutes, setMinutes] = useState("1");
   const [filterOpen, toggleFilterOpen] = useToggle(false);
   const [bearer, setBearer] = useLocalStorage('bearer', '')
