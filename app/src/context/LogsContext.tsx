@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { EthSubscription, logProcessed } from '../eth/subscribe';
 import { wsLogsSubscribe } from '../eth/wsSubscription';
-import { AuctionMap, HexaString, STATUS } from '../types';
+import { AuctionMap, STATUS } from '../types';
 import { boughtDig, cancelDig, existsId, getTopic, offerDig } from '../utils';
 
 
@@ -16,7 +16,6 @@ export const LogsContext = React.createContext<LogsContextInterface>({
 export const LogsContextProvider: React.FunctionComponent = ({ children }) => {
   const [data] = useState<AuctionMap>({});
   let [updateValue, setUpdateValue] = useState<number>(0);
-  let [boughtList, setBoughtList] = useState<HexaString[]>([]);
 
   useEffect(() => {
     let subscription: EthSubscription<logProcessed>;
@@ -60,37 +59,7 @@ export const LogsContextProvider: React.FunctionComponent = ({ children }) => {
     return () => {
       subscription.stop();
     }
-    //eslint-disable-next-line
   }, []);
-
-  /**
-  useEffect(() => {
-    if (useAutobuy) {
-      let autobuyMaxInt = parseFloat(autobuyMax) * 1e18;
-      let autobuyMinInt = parseFloat(autobuyMin) * 1e18;
-      Object.values(data).forEach((tx) => {
-        if (
-          cleanInt(tx.price) > autobuyMaxInt ||
-          cleanInt(tx.price) < autobuyMinInt ||
-          tx.status !== STATUS.OFFER ||
-          boughtList.includes(tx.id)
-        ) {
-          return;
-        }
-        // eslint-disable-next-line 
-        boughtList = [...boughtList, tx.id];
-        tradeContract.methods
-          .bid(`0x${tx.id}`, `0x${tx.price}`)
-          .send({ from: eth.defaultAccount, gasPrice: 6e9, gas: 300000 });
-        console.log(
-          `Comprando planta ${cleanInt(tx.id)} a ${cleanInt(tx.price) * 1e-18
-          }`
-        );
-      });
-    }
-    setBoughtList(boughtList);
-  }, [updateValue, boughtList, autobuyMin, autobuyMax, useAutobuy]);
-  */
   return <LogsContext.Provider value={
     {
       logs: data

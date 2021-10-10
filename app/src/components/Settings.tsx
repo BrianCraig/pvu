@@ -11,7 +11,11 @@ export const SettingsComponent = () => {
     filterOpen,
     toggleFilterOpen,
     bearer,
-    setBearer
+    setBearer,
+    autobuyActive,
+    toggleAutobuyActive,
+    autobuyDifference,
+    setAutobuyDifference
   } = useContext(SettingsContext);
   return <>
     <span> price: </span>
@@ -40,6 +44,17 @@ export const SettingsComponent = () => {
       onChange={(event) => setBearer(event.target.value)}
       value={bearer}
       placeholder="Bearer Token"
+    />
+    <Button
+      primary={autobuyActive}
+      onClick={toggleAutobuyActive}>
+      Autobuy
+    </Button>
+    <Input
+      className={"smallinput"}
+      onChange={(event) => setAutobuyDifference(event.target.value)}
+      value={autobuyDifference}
+      placeholder="Autobuy difference"
     />
   </>
 }

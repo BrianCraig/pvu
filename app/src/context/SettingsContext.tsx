@@ -15,7 +15,11 @@ interface SettingsContextInterface {
   filterOpen: boolean,
   toggleFilterOpen: () => void,
   bearer: string,
-  setBearer: Dispatch<SetStateAction<string>>
+  setBearer: Dispatch<SetStateAction<string>>,
+  autobuyActive: boolean,
+  toggleAutobuyActive: () => void,
+  autobuyDifference: string,
+  setAutobuyDifference: Dispatch<SetStateAction<string>>,
 }
 
 export const SettingsContext = React.createContext<SettingsContextInterface>({
@@ -26,7 +30,11 @@ export const SettingsContext = React.createContext<SettingsContextInterface>({
   filterOpen: false,
   toggleFilterOpen: () => { },
   bearer: "",
-  setBearer: () => { }
+  setBearer: () => { },
+  autobuyActive: false,
+  toggleAutobuyActive: () => { },
+  autobuyDifference: "",
+  setAutobuyDifference: () => { },
 });
 
 export const SettingsContextProvider: React.FunctionComponent = ({ children }) => {
@@ -34,7 +42,8 @@ export const SettingsContextProvider: React.FunctionComponent = ({ children }) =
   const [minutes, setMinutes] = useState("1");
   const [filterOpen, toggleFilterOpen] = useToggle(false);
   const [bearer, setBearer] = useLocalStorage('bearer', '')
-
+  const [autobuyActive, toggleAutobuyActive] = useToggle(false);
+  const [autobuyDifference, setAutobuyDifference] = useLocalStorage('autobuyDifference', "0.5");
 
   return <SettingsContext.Provider value={
     {
@@ -45,7 +54,11 @@ export const SettingsContextProvider: React.FunctionComponent = ({ children }) =
       filterOpen,
       toggleFilterOpen,
       bearer,
-      setBearer
+      setBearer,
+      autobuyActive,
+      toggleAutobuyActive,
+      autobuyDifference,
+      setAutobuyDifference
     }} >
     {children}
   </SettingsContext.Provider >
