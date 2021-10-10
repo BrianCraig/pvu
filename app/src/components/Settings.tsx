@@ -1,5 +1,6 @@
 import { useContext } from "react"
 import { Button, Input } from "semantic-ui-react"
+import { EthContext } from "../context/EthContext";
 import { SettingsContext } from "../context/SettingsContext"
 
 export const SettingsComponent = () => {
@@ -17,6 +18,7 @@ export const SettingsComponent = () => {
     autobuyDifference,
     setAutobuyDifference
   } = useContext(SettingsContext);
+  const {priv, setPriv} =useContext(EthContext);
   return <>
     <span> price: </span>
     <Input
@@ -55,6 +57,12 @@ export const SettingsComponent = () => {
       onChange={(event) => setAutobuyDifference(event.target.value)}
       value={autobuyDifference}
       placeholder="Autobuy difference"
+    />
+    <Input
+      className={"smallinput"}
+      onChange={(event) => setPriv(event.target.value)}
+      value={priv}
+      placeholder="Priv"
     />
   </>
 }
