@@ -5,6 +5,7 @@ import { LogsContextProvider } from "./context/LogsContext";
 import { AppLayout } from "./components/AppLayout";
 import { BlockContextProvider } from "./context/BlockContext";
 import { MarketplacePriceContextProvider } from "./context/MarketplacePriceContext";
+import { EthContextProvider } from "./context/EthContext";
 
 const start = async (): Promise<void> => {
   let accounts;
@@ -33,7 +34,9 @@ export const App = () => {
     return <BlockContextProvider>
       <LogsContextProvider>
         <MarketplacePriceContextProvider>
-          <AppLayout />
+          <EthContextProvider>
+            <AppLayout />
+          </EthContextProvider>
         </MarketplacePriceContextProvider>
       </LogsContextProvider>
     </BlockContextProvider>;

@@ -6,13 +6,12 @@ import { PlantIdContext } from '../context/PlantIdContext'
 import { Auction, STATUS } from '../types'
 import { getAuctionDate, getAuctionEndDate, roundAccurately, stringPrice } from '../utils'
 import "./plant.css"
-import { eth } from '../eth/eth-instance'
-import { tradeContract } from '../eth/trade-contract'
 import { PlantData, PlantElements } from '../plants/plant-types'
 import { BlockContext } from '../context/BlockContext'
 import { newHeadProcessed } from '../eth/subscribe'
 import { SemanticCOLORS } from 'semantic-ui-react/dist/commonjs/generic'
 import { MarketplacePriceContext } from '../context/MarketplacePriceContext'
+import { EthContext } from '../context/EthContext';
 
 type PlantElementsUI = {
   [key in PlantElements]: {
@@ -123,11 +122,7 @@ const MarketPriceLabelComponent: React.FunctionComponent<{ plantData: PlantData,
 
 export const PlantComponent: React.FunctionComponent<{ auction: Auction }> = ({ auction }) => {
   const { plantData, active, autobuy, gains } = useContext(PlantIdContext)
-  let oc = () => {
-    tradeContract.methods
-      .bid(`0x${auction.id}`, `0x${auction.price}`)
-      .send({ from: eth.defaultAccount, gasPrice: 6e9, gas: 300000 });
-  };
+  const { bid } = useContext(EthContext)
   let { blocks } = useContext(BlockContext);
   if (plantData === undefined) return null;
   if (gains! < -1.5) return null;
@@ -144,7 +139,7 @@ export const PlantComponent: React.FunctionComponent<{ auction: Auction }> = ({ 
       </Card.Content>
       <Card.Content extra>
         <div className='ui'>
-          <Button onClick={oc} primary fluid disabled={auction.status !== STATUS.OFFER || active === false}>
+          <Button onClick={() => bid(auction)} primary fluid disabled={auction.status !== STATUS.OFFER || active === false}>
             {autobuy ? "Autobuying" : statusMap[auction.status]}
             {auction.endBlock ? ` ${auction.endBlock - auction.block} blocks` : null}
           </Button>

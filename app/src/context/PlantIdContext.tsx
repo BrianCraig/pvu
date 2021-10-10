@@ -1,11 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { fromWei } from "web3-utils";
-import { eth } from '../eth/eth-instance';
 import { tokenContract } from '../eth/token-contract';
-import { tradeContract } from '../eth/trade-contract';
 import { infoPlantId } from '../plants/plant-id-tools';
 import { PlantData } from '../plants/plant-types';
 import { Auction, STATUS } from '../types';
+import { EthContext } from './EthContext';
 import { MarketplacePriceContext } from './MarketplacePriceContext';
 import { SettingsContext } from './SettingsContext';
 
@@ -46,6 +45,7 @@ export const PlantIdContextProvider: React.FunctionComponent<{ auction: Auction 
   let [gains, setGains] = useState<number | undefined>();
   let { suggestPrice } = useContext(MarketplacePriceContext);
   let { bearer, autobuyActive, toggleAutobuyActive, autobuyDifference } = useContext(SettingsContext);
+  let { bid } = useContext(EthContext);
   useEffect(() => {
     if (plantData === undefined) {
       tokenContract.methods.getPlant(`0x${id}`).call({}).then(
@@ -82,9 +82,7 @@ export const PlantIdContextProvider: React.FunctionComponent<{ auction: Auction 
       if (gains! > ab && ab >= -.2) {
         setAutobuy(true);
         toggleAutobuyActive();
-        tradeContract.methods
-          .bid(`0x${auction.id}`, `0x${auction.price}`)
-          .send({ from: eth.defaultAccount, gasPrice: 6e9, gas: 300000 });
+        bid(auction);
       }
     }
   }, [plantData, active])
